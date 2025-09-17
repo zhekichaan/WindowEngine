@@ -28,3 +28,4 @@
 /Users/momojopa/RiderProjects/WindowEngine/WindowEngine/obj/Debug/net8.0/WindowEngine.pdb
 /Users/momojopa/RiderProjects/WindowEngine/WindowEngine/obj/Debug/net8.0/WindowEngine.genruntimeconfig.cache
 /Users/momojopa/RiderProjects/WindowEngine/WindowEngine/obj/Debug/net8.0/ref/WindowEngine.dll
+/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/obj/Debug/net8.0/WindowEngine.sourcelink.json
