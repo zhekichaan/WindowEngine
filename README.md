@@ -7,7 +7,7 @@ Solution should work and open with Visual Studio
 Assignment 2:  
 
 Library Used: OpenTK.Mathematics  
-Implemented: Addition, subtraction, dot, cross, identity, scaling, rotation, multiplication
+Implemented: Addition, subtraction, dot, cross, identity, scaling, rotation, multiplication  
 Example output:  
   
   
