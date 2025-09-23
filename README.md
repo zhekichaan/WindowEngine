@@ -29,3 +29,11 @@ original point = (2, 3, 1)
 rotated point  = (0.9999999, 3, -2.0000005)  
   
 Process finished with exit code 0.  
+
+Assignment 3:  
+
+In order to render the cube, I would need:
+- Map all verticies
+- Generate VBO and VAO
+- Create vertex shader and fragment shader
+- Apply MVP to my cube
