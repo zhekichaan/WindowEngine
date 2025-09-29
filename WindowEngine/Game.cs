@@ -1,6 +1,4 @@
 using System;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
@@ -10,179 +8,184 @@ namespace WindowEngine
 {
     public class Game : GameWindow
     {
-        private int vertexBufferHandle;
-        private int shaderProgramHandle;
-        private int vertexArrayHandle;
+        // Handles for GPU objects
+        private int vertexBufferHandle;   // Vertex Buffer Object (stores vertices)
+        private int shaderProgramHandle;  // Shader Program (vertex + fragment shaders)
+        private int vertexArrayHandle;    // Vertex Array Object (stores vertex attribute layout)
 
+        // Uniform locations for matrices
         private int modelLoc, viewLoc, projLoc;
 
-        private int vertexCount = 36;
-        private float angle;
-        
+        // Rotation angle for continuous rotation
+        private float rotationAngle = 0f;
+
         public Game()
             : base(GameWindowSettings.Default, NativeWindowSettings.Default)
         {
+            // Set the window size
             this.Size = new Vector2i(1280, 768);
+
+            // Center the window on the screen
             this.CenterWindow(this.Size);
         }
 
+        // Called automatically whenever the window is resized
         protected override void OnResize(ResizeEventArgs e)
         {
+            // Update the OpenGL viewport to match the window size
             GL.Viewport(0, 0, e.Width, e.Height);
             base.OnResize(e);
         }
 
+        // Called once when the game starts (load resources here)
         protected override void OnLoad()
         {
             base.OnLoad();
 
+            // Set background color (sky blue tone)
             GL.ClearColor(new Color4(0.5f, 0.7f, 0.8f, 1f));
-            
-            float[] vertices = {
-                // front
-                -0.5f,-0.5f, 0.5f,  1,0,0,   0.5f,-0.5f, 0.5f,  1,0,0,   0.5f, 0.5f, 0.5f,  1,0,0,
-                -0.5f,-0.5f, 0.5f,  1,0,0,   0.5f, 0.5f, 0.5f,  1,0,0,  -0.5f, 0.5f, 0.5f,  1,0,0,
 
-                // right
-                0.5f,-0.5f, 0.5f,  0,1,0,   0.5f,-0.5f,-0.5f,  0,1,0,   0.5f, 0.5f,-0.5f,  0,1,0,
-                0.5f,-0.5f, 0.5f,  0,1,0,   0.5f, 0.5f,-0.5f,  0,1,0,   0.5f, 0.5f, 0.5f,  0,1,0,
-
-                // back
-                0.5f,-0.5f,-0.5f,  0,0,1,  -0.5f,-0.5f,-0.5f,  0,0,1,  -0.5f, 0.5f,-0.5f,  0,0,1,
-                0.5f,-0.5f,-0.5f,  0,0,1,  -0.5f, 0.5f,-0.5f,  0,0,1,   0.5f, 0.5f,-0.5f,  0,0,1,
-
-                // left
-                -0.5f,-0.5f,-0.5f,  1,1,0,  -0.5f,-0.5f, 0.5f,  1,1,0,  -0.5f, 0.5f, 0.5f,  1,1,0,
-                -0.5f,-0.5f,-0.5f,  1,1,0,  -0.5f, 0.5f, 0.5f,  1,1,0,  -0.5f, 0.5f,-0.5f,  1,1,0,
-
-                // bottom
-                -0.5f,-0.5f,-0.5f,  1,0,1,   0.5f,-0.5f,-0.5f,  1,0,1,   0.5f,-0.5f, 0.5f,  1,0,1,
-                -0.5f,-0.5f,-0.5f,  1,0,1,   0.5f,-0.5f, 0.5f,  1,0,1,  -0.5f,-0.5f, 0.5f,  1,0,1,
-
-                // top
-                -0.5f, 0.5f, 0.5f,  0,1,1,   0.5f, 0.5f, 0.5f,  0,1,1,   0.5f, 0.5f,-0.5f,  0,1,1,
-                -0.5f, 0.5f, 0.5f,  0,1,1,   0.5f, 0.5f,-0.5f,  0,1,1,  -0.5f, 0.5f,-0.5f,  0,1,1,
+            // Define a simple triangle (3 vertices in normalized device coordinates)
+            float[] vertices = new float[]
+            {
+                0.0f,  0.5f, 0.0f,   // Top vertex
+               -0.5f, -0.5f, 0.0f,   // Bottom-left vertex
+                0.5f, -0.5f, 0.0f    // Bottom-right vertex
             };
             
-            // Generate VBO
+            // Create a Vertex Buffer Object (VBO) and upload vertex data to GPU
             vertexBufferHandle = GL.GenBuffer();
             GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferHandle);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
-            
-            // Generate VAO
-            vertexArrayHandle = GL.GenVertexArray();
-            GL.BindVertexArray(vertexArrayHandle);
-           
-            // position
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(0);
-
-            // color
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
-            GL.EnableVertexAttribArray(1);
-            
-            GL.BindVertexArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
-            // Vertex shader with model, view, projection matrices
+            // Create a Vertex Array Object (VAO) to store vertex attribute configuration
+            vertexArrayHandle = GL.GenVertexArray();
+            GL.BindVertexArray(vertexArrayHandle);
+
+            // Configure how vertex data is interpreted by the shader
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferHandle);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+
+            // Vertex Shader (handles vertex positions, now with transformation matrices)
             string vertexShaderCode = @"
                 #version 330 core
                 layout(location = 0) in vec3 aPosition;
-                layout(location = 1) in vec3 aColor;
 
-                uniform mat4 uModel;
-                uniform mat4 uView;
-                uniform mat4 uProj;
-
-                out vec3 vColor;
+                uniform mat4 uModel; // Model transformation
+                uniform mat4 uView;  // Camera (view) transformation
+                uniform mat4 uProj;  // Projection transformation
 
                 void main()
                 {
-                    vColor = aColor;
+                    // Apply Model-View-Projection transform to the vertex
                     gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
                 }
             ";
 
+            // Fragment Shader (defines pixel color)
             string fragmentShaderCode = @"
                 #version 330 core
-                in vec3 vColor;
                 out vec4 FragColor;
 
                 void main()
                 {
-                    FragColor = vec4(vColor, 1.0);
+                    // Solid purple color
+                    FragColor = vec4(0.6, 0.2, 0.8, 1.0);
                 }
             ";
 
+            // Compile vertex shader
             int vertexShaderHandle = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShaderHandle, vertexShaderCode);
             GL.CompileShader(vertexShaderHandle);
             CheckShaderCompile(vertexShaderHandle, "Vertex Shader");
 
+            // Compile fragment shader
             int fragmentShaderHandle = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(fragmentShaderHandle, fragmentShaderCode);
             GL.CompileShader(fragmentShaderHandle);
             CheckShaderCompile(fragmentShaderHandle, "Fragment Shader");
 
+            // Link shaders into a program
             shaderProgramHandle = GL.CreateProgram();
             GL.AttachShader(shaderProgramHandle, vertexShaderHandle);
             GL.AttachShader(shaderProgramHandle, fragmentShaderHandle);
             GL.LinkProgram(shaderProgramHandle);
 
+            // Clean up shaders (no longer needed after linking)
             GL.DetachShader(shaderProgramHandle, vertexShaderHandle);
             GL.DetachShader(shaderProgramHandle, fragmentShaderHandle);
             GL.DeleteShader(vertexShaderHandle);
             GL.DeleteShader(fragmentShaderHandle);
 
-            // Get uniform locations
+            // Get uniform variable locations in the shader program
             modelLoc = GL.GetUniformLocation(shaderProgramHandle, "uModel");
             viewLoc = GL.GetUniformLocation(shaderProgramHandle, "uView");
             projLoc = GL.GetUniformLocation(shaderProgramHandle, "uProj");
-            
-            GL.Enable(EnableCap.DepthTest);
-            GL.DepthFunc(DepthFunction.Less);
-            GL.Enable(EnableCap.CullFace);
-            GL.CullFace(CullFaceMode.Back);
         }
 
+        // Called every frame to update logic (input, animations, physics, etc.)
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
-            angle += (float)args.Time;
+
+            // Increase the rotation angle over time (rotate continuously)
+            rotationAngle += (float)args.Time;
         }
 
+        // Called every frame to render graphics
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             base.OnRenderFrame(args);
 
+            // Clear screen and depth buffer
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.UseProgram(shaderProgramHandle);
-            
-            // camera view
-            Matrix4 view = Matrix4.LookAt(new Vector3(0, 1.5f, 2f), Vector3.Zero, Vector3.UnitY);
-           
-            // fov
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.DegreesToRadians(90f),
-                (float)Size.X / Size.Y,
-                0.1f, 100f);
 
-            // rotation
-            Matrix4 model = Matrix4.CreateRotationY(angle);
-            
+            // Create rotation using a quaternion (rotate around Y axis)
+            Quaternion q = Quaternion.FromAxisAngle(Vector3.UnitY, rotationAngle);
+            Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(q);
+
+            // Model matrix: rotation + translation
+            Matrix4 model = rotationMatrix * Matrix4.CreateTranslation(0f, 0f, -2f);
+
+            // View matrix: camera positioned at (0,0,3), looking at the origin
+            Matrix4 view = Matrix4.LookAt(
+                new Vector3(0, 0, 3),
+                Vector3.Zero,
+                Vector3.UnitY
+            );
+
+            // Projection matrix: perspective projection
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
+                MathHelper.DegreesToRadians(60f),   // Field of View
+                (float)Size.X / Size.Y,             // Aspect ratio
+                0.1f,                               // Near clipping plane
+                100f                                // Far clipping plane
+            );
+
+            // Send matrices to the shader
+            GL.UniformMatrix4(modelLoc, false, ref model);
             GL.UniformMatrix4(viewLoc, false, ref view);
             GL.UniformMatrix4(projLoc, false, ref projection);
-            GL.UniformMatrix4(modelLoc, false, ref model);
-            
+
+            // Draw the triangle
             GL.BindVertexArray(vertexArrayHandle);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
             GL.BindVertexArray(0);
-            
-            SwapBuffers();        
+
+            // Swap buffers (display the frame)
+            SwapBuffers();
         }
 
+        // Called when the game closes (clean up GPU resources)
         protected override void OnUnload()
         {
+            // Delete buffers and shader program
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.DeleteBuffer(vertexBufferHandle);
 
@@ -195,6 +198,7 @@ namespace WindowEngine
             base.OnUnload();
         }
 
+        // Helper function to check for shader compilation errors
         private void CheckShaderCompile(int shaderHandle, string shaderName)
         {
             GL.GetShader(shaderHandle, ShaderParameter.CompileStatus, out int success);
