@@ -1,0 +1,61 @@
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- IDEs ---
+# Visual Studio / VS for Mac
+.vs/
+*.suo
+*.user
+*.userosscache
+*.rsuser
+*.sln.docstates
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# --- .NET build output ---
+# (covers any nested project folder)
+**/[Bb]in/
+**/[Oo]bj/
+**/[Rr]elease/
+**/[Dd]ebug/
+**/[Pp]ublish/
+artifacts/
+
+# Logs / caches
+*.log
+*.cache/
+*.tlog
+
+# Test results / coverage
+TestResult*
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/packages/
+packages/
+
+# ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+# MSBuild / intermediate
+*.pdb
+*.ilk
+*.obj
+*.idb
+
+# Rider/Unity leftovers (harmless if not used)
+AssetStore/
+
