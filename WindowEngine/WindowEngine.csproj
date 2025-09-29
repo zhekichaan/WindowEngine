@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -10,6 +10,7 @@
     <ItemGroup>
       <PackageReference Include="OpenTK" Version="4.9.4" />
       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+      <None Include="Assets\**\*" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>
