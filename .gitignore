@@ -1,0 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.sln.iml
+_ReSharper*/ 
+*.DotSettings.user
+# Rider caches
+/.gradle/
+/system/
+
+# Visual Studio artifacts (if you ever open in VS)
+.vs/
+
+# .NET build output
+**/[Bb]in/
+**/[Oo]bj/
+**/[Rr]elease/
+**/[Dd]ebug/
+**/[Pp]ublish/
+artifacts/
+
+# Logs / caches
+*.log
+*.tlog
+*.cache/
+TestResult*
+TestResults/
+*.trx
+*.coverage*
+coverage/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/packages/
+packages/
+
