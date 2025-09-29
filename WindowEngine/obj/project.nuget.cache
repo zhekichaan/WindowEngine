@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "0xnSp6dB8O0=",
+  "dgSpecHash": "WFwz+3pT4ho=",
   "success": true,
   "projectFilePath": "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj",
   "expectedPackageFiles": [
@@ -15,6 +15,7 @@
     "/Users/momojopa/.nuget/packages/opentk.windowing.common/4.9.4/opentk.windowing.common.4.9.4.nupkg.sha512",
     "/Users/momojopa/.nuget/packages/opentk.windowing.desktop/4.9.4/opentk.windowing.desktop.4.9.4.nupkg.sha512",
     "/Users/momojopa/.nuget/packages/opentk.windowing.graphicslibraryframework/4.9.4/opentk.windowing.graphicslibraryframework.4.9.4.nupkg.sha512",
+    "/Users/momojopa/.nuget/packages/sixlabors.imagesharp/3.1.11/sixlabors.imagesharp.3.1.11.nupkg.sha512",
     "/Users/momojopa/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
   ],
   "logs": []

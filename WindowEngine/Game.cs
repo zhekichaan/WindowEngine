@@ -6,6 +6,14 @@ using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
 
+// texture loading
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Runtime.InteropServices;
+using SixLabors.ImageSharp.Processing;
+
+
+ 
 namespace WindowEngine
 {
     public class Game : GameWindow
@@ -18,6 +26,8 @@ namespace WindowEngine
 
         private int vertexCount = 36;
         private float angle;
+
+        private float levitationPhase = 0f;
         
         public Game()
             : base(GameWindowSettings.Default, NativeWindowSettings.Default)
@@ -38,30 +48,67 @@ namespace WindowEngine
 
             GL.ClearColor(new Color4(0.5f, 0.7f, 0.8f, 1f));
             
+            // load image
+            var image = Image.Load<Rgba32>("dirt.jpg");
+            int width = image.Width;
+            int height = image.Height;
+            int nrChannels = 4;
+
+            // flip image (bottom-origin)
+            image.Mutate(x => x.Flip(FlipMode.Vertical));
+    
+            Span<Rgba32> pixelSpan = new Span<Rgba32>(new Rgba32[width * height]);
+            image.CopyPixelDataTo(pixelSpan);
+            byte[] data = MemoryMarshal.AsBytes(pixelSpan).ToArray();
+            
             float[] vertices = {
                 // front
-                -0.5f,-0.5f, 0.5f,  1,0,0,   0.5f,-0.5f, 0.5f,  1,0,0,   0.5f, 0.5f, 0.5f,  1,0,0,
-                -0.5f,-0.5f, 0.5f,  1,0,0,   0.5f, 0.5f, 0.5f,  1,0,0,  -0.5f, 0.5f, 0.5f,  1,0,0,
+                -0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,   
+                0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 0.0f,   
+                0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                -0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                -0.5f, 0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
 
                 // right
-                0.5f,-0.5f, 0.5f,  0,1,0,   0.5f,-0.5f,-0.5f,  0,1,0,   0.5f, 0.5f,-0.5f,  0,1,0,
-                0.5f,-0.5f, 0.5f,  0,1,0,   0.5f, 0.5f,-0.5f,  0,1,0,   0.5f, 0.5f, 0.5f,  0,1,0,
+                0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,
+                0.5f,-0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
+                0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
+                0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,
+                0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
+                0.5f, 0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
 
                 // back
-                0.5f,-0.5f,-0.5f,  0,0,1,  -0.5f,-0.5f,-0.5f,  0,0,1,  -0.5f, 0.5f,-0.5f,  0,0,1,
-                0.5f,-0.5f,-0.5f,  0,0,1,  -0.5f, 0.5f,-0.5f,  0,0,1,   0.5f, 0.5f,-0.5f,  0,0,1,
+                0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
+                0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
+                0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 1.0f,
 
                 // left
-                -0.5f,-0.5f,-0.5f,  1,1,0,  -0.5f,-0.5f, 0.5f,  1,1,0,  -0.5f, 0.5f, 0.5f,  1,1,0,
-                -0.5f,-0.5f,-0.5f,  1,1,0,  -0.5f, 0.5f, 0.5f,  1,1,0,  -0.5f, 0.5f,-0.5f,  1,1,0,
+                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                -0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                -0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 1.0f,
 
                 // bottom
-                -0.5f,-0.5f,-0.5f,  1,0,1,   0.5f,-0.5f,-0.5f,  1,0,1,   0.5f,-0.5f, 0.5f,  1,0,1,
-                -0.5f,-0.5f,-0.5f,  1,0,1,   0.5f,-0.5f, 0.5f,  1,0,1,  -0.5f,-0.5f, 0.5f,  1,0,1,
+                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                0.5f,-0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                -0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
 
                 // top
-                -0.5f, 0.5f, 0.5f,  0,1,1,   0.5f, 0.5f, 0.5f,  0,1,1,   0.5f, 0.5f,-0.5f,  0,1,1,
-                -0.5f, 0.5f, 0.5f,  0,1,1,   0.5f, 0.5f,-0.5f,  0,1,1,  -0.5f, 0.5f,-0.5f,  0,1,1,
+                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                0.5f, 0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
+                0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
+                0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
             };
             
             // Generate VBO
@@ -74,31 +121,48 @@ namespace WindowEngine
             GL.BindVertexArray(vertexArrayHandle);
            
             // position
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
             // color
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
+            
+            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
+            GL.EnableVertexAttribArray(2);
             
             GL.BindVertexArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+            // textures
+            uint texture =  (uint)GL.GenTexture();
+            GL.BindTexture(TextureTarget.Texture2D, texture);
+            
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height,  0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
+            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            
             // Vertex shader with model, view, projection matrices
             string vertexShaderCode = @"
                 #version 330 core
                 layout(location = 0) in vec3 aPosition;
                 layout(location = 1) in vec3 aColor;
+                layout(location = 2) in vec2 aTexCoord;
 
                 uniform mat4 uModel;
                 uniform mat4 uView;
                 uniform mat4 uProj;
 
                 out vec3 vColor;
+                out vec2 vTexCoord;
 
                 void main()
                 {
                     vColor = aColor;
+                    vTexCoord = aTexCoord;
                     gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
                 }
             ";
@@ -106,11 +170,15 @@ namespace WindowEngine
             string fragmentShaderCode = @"
                 #version 330 core
                 in vec3 vColor;
+                in vec2 vTexCoord;
+
+                uniform sampler2D uTexture;
+
                 out vec4 FragColor;
 
                 void main()
                 {
-                    FragColor = vec4(vColor, 1.0);
+                    FragColor = texture(uTexture, vTexCoord) * vec4(vColor, 1.0);
                 }
             ";
 
@@ -149,6 +217,9 @@ namespace WindowEngine
         {
             base.OnUpdateFrame(args);
             angle += (float)args.Time;
+            
+            
+            levitationPhase += (float)args.Time * 2f;
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -159,16 +230,16 @@ namespace WindowEngine
             GL.UseProgram(shaderProgramHandle);
             
             // camera view
-            Matrix4 view = Matrix4.LookAt(new Vector3(0, 1.5f, 2f), Vector3.Zero, Vector3.UnitY);
+            Matrix4 view = Matrix4.LookAt(new Vector3(0, 1.2f, 2f), Vector3.Zero, Vector3.UnitY);
            
             // fov
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.DegreesToRadians(90f),
+                MathHelper.DegreesToRadians(80f),
                 (float)Size.X / Size.Y,
                 0.1f, 100f);
 
-            // rotation
-            Matrix4 model = Matrix4.CreateRotationY(angle);
+            // rotation + minecraft levitation
+            Matrix4 model = Matrix4.CreateTranslation(0f, 0.30f * MathF.Sin(levitationPhase), 0f) * Matrix4.CreateRotationY(angle * 0.7f);
             
             GL.UniformMatrix4(viewLoc, false, ref view);
             GL.UniformMatrix4(projLoc, false, ref projection);
