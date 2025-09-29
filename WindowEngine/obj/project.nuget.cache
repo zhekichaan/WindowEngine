@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/2Z+USVeuh4=",
+  "dgSpecHash": "0xnSp6dB8O0=",
   "success": true,
-  "projectFilePath": "/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/WindowEngine.csproj",
+  "projectFilePath": "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj",
   "expectedPackageFiles": [
     "/Users/momojopa/.nuget/packages/opentk/4.9.4/opentk.4.9.4.nupkg.sha512",
     "/Users/momojopa/.nuget/packages/opentk.audio.openal/4.9.4/opentk.audio.openal.4.9.4.nupkg.sha512",
