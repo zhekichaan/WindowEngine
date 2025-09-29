@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/WindowEngine.csproj": {}
+    "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj": {}
   },
   "projects": {
-    "/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/WindowEngine.csproj": {
+    "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/WindowEngine.csproj",
+        "projectUniqueName": "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj",
         "projectName": "WindowEngine",
-        "projectPath": "/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/WindowEngine.csproj",
+        "projectPath": "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj",
         "packagesPath": "/Users/momojopa/.nuget/packages/",
-        "outputPath": "/Users/momojopa/RiderProjects/WindowEngine/WindowEngine/obj/",
+        "outputPath": "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/momojopa/.nuget/NuGet/NuGet.Config"
