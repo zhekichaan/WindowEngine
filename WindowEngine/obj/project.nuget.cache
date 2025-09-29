@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "0xnSp6dB8O0=",
+  "dgSpecHash": "izZjg+fhI70=",
   "success": true,
   "projectFilePath": "/Users/momojopa/Documents/GitHub/WindowEngine/WindowEngine/WindowEngine.csproj",
   "expectedPackageFiles": [
@@ -15,7 +15,10 @@
     "/Users/momojopa/.nuget/packages/opentk.windowing.common/4.9.4/opentk.windowing.common.4.9.4.nupkg.sha512",
     "/Users/momojopa/.nuget/packages/opentk.windowing.desktop/4.9.4/opentk.windowing.desktop.4.9.4.nupkg.sha512",
     "/Users/momojopa/.nuget/packages/opentk.windowing.graphicslibraryframework/4.9.4/opentk.windowing.graphicslibraryframework.4.9.4.nupkg.sha512",
-    "/Users/momojopa/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+    "/Users/momojopa/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "/Users/momojopa/.nuget/packages/microsoft.netcore.app.ref/8.0.19/microsoft.netcore.app.ref.8.0.19.nupkg.sha512",
+    "/Users/momojopa/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.19/microsoft.aspnetcore.app.ref.8.0.19.nupkg.sha512",
+    "/Users/momojopa/.nuget/packages/microsoft.netcore.app.host.osx-x64/8.0.19/microsoft.netcore.app.host.osx-x64.8.0.19.nupkg.sha512"
   ],
   "logs": []
 }
