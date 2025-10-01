@@ -22,7 +22,7 @@ namespace WindowEngine
             Console.WriteLine($"cross product = {cross}");
 
             Matrix4 scale = Operations.Scale(2.0f);
-            Matrix4 rotation  = Operations.RotationX(45f);
+            Matrix4 rotation  = Operations.RotationY(45f);
             Matrix4 translation = Matrix4.CreateTranslation(1, 2, 0);
 
             Matrix4 transform = scale * rotation * translation;
@@ -34,15 +34,8 @@ namespace WindowEngine
             Console.WriteLine($"identity = {Operations.Identity()}");
             Console.WriteLine($"result of matrix operations: {v} -> {result}");
             
-            Quaternion q = Quaternion.FromAxisAngle(Vector3.UnitY, MathHelper.DegreesToRadians(90));
-            Vector3 point = new Vector3(2, 3, 1);
-            Vector3 rotated = Vector3.Transform(point, q);
-
-            Console.WriteLine("\nQuaternion operations:");
-            Console.WriteLine($"original point = {point}");
-            Console.WriteLine($"rotated point  = {rotated}");
-            //using var game = new Game();
-            //game.Run();
+            using var game = new Game();
+            game.Run();
         }
     }
 }

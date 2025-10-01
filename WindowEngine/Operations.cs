@@ -34,9 +34,9 @@ namespace WindowEngine
             return Matrix4.CreateScale(f);
         }
 
-        public static Matrix4 RotationX(float degrees)
+        public static Matrix4 RotationY(float degrees)
         {
-            return Matrix4.CreateRotationX(MathHelper.DegreesToRadians(degrees));
+            return Matrix4.CreateRotationY(degrees);
         }
 
         public static Matrix4 Multiply(Matrix4 a, Matrix4 b)

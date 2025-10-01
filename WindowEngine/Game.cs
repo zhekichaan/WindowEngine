@@ -18,6 +18,7 @@ namespace WindowEngine
 
         // Rotation angle for continuous rotation
         private float rotationAngle = 0f;
+        private float scaleFrequency = 0f;
 
         public Game()
             : base(GameWindowSettings.Default, NativeWindowSettings.Default)
@@ -135,6 +136,8 @@ namespace WindowEngine
 
             // Increase the rotation angle over time (rotate continuously)
             rotationAngle += (float)args.Time;
+            
+            scaleFrequency += (float)args.Time * MathF.Sin(rotationAngle * 2);
         }
 
         // Called every frame to render graphics
@@ -146,12 +149,8 @@ namespace WindowEngine
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             GL.UseProgram(shaderProgramHandle);
 
-            // Create rotation using a quaternion (rotate around Y axis)
-            Quaternion q = Quaternion.FromAxisAngle(Vector3.UnitY, rotationAngle);
-            Matrix4 rotationMatrix = Matrix4.CreateFromQuaternion(q);
-
-            // Model matrix: rotation + translation
-            Matrix4 model = rotationMatrix * Matrix4.CreateTranslation(0f, 0f, -2f);
+            // Model matrix: rotation + scale using helper class
+            Matrix4 model = Operations.RotationY(rotationAngle) * Operations.Scale(1f + scaleFrequency);
 
             // View matrix: camera positioned at (0,0,3), looking at the origin
             Matrix4 view = Matrix4.LookAt(
@@ -162,7 +161,7 @@ namespace WindowEngine
 
             // Projection matrix: perspective projection
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.DegreesToRadians(60f),   // Field of View
+                MathHelper.DegreesToRadians(80f),   // Field of View
                 (float)Size.X / Size.Y,             // Aspect ratio
                 0.1f,                               // Near clipping plane
                 100f                                // Far clipping plane
