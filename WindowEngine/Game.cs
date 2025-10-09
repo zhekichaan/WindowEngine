@@ -106,8 +106,7 @@ namespace WindowEngine
             
             GL.BindVertexArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            
-            // Vertex shader with model, view, projection matrices
+                
             string vertexShaderCode = File.ReadAllText("Assets/Shaders/phong.vert");
             string fragmentShaderCode = File.ReadAllText("Assets/Shaders/phong.frag");
 
@@ -149,7 +148,7 @@ namespace WindowEngine
             _camera = new Camera(Vector3.UnitZ * 3, Size.X / (float)Size.Y);
                 
             CursorState = CursorState.Grabbed; 
-        }
+        } 
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
