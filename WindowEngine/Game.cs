@@ -1,33 +1,28 @@
-using System;
-using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
-
-// texture loading
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using System.Runtime.InteropServices;
-using SixLabors.ImageSharp.Processing;
-
-
- 
+using OpenTK.Windowing.GraphicsLibraryFramework;
 namespace WindowEngine
 {
     public class Game : GameWindow
     {
-        private int vertexBufferHandle;
-        private int shaderProgramHandle;
-        private int vertexArrayHandle;
+       private int _vertexBufferHandle;
+        private int _shaderProgramHandle;
+        private int _vertexArrayHandle;
 
-        private int modelLoc, viewLoc, projLoc;
+        private int _modelLoc, _viewLoc, _projLoc;
+        private int _lightPosLoc, _viewPosLoc, _lightColorLoc, _objectColorLoc;
+        
+        private float _angle;
+        
+        // camera speed
+        private float _cameraSpeed = 1.5f;
 
-        private int vertexCount = 36;
-        private float angle;
-
-        private float levitationPhase = 0f;
+        private Vector2 _lastPos;
+        private bool _firstMove = true;
+        
+        private Camera _camera;
         
         public Game()
             : base(GameWindowSettings.Default, NativeWindowSettings.Default)
@@ -36,151 +31,85 @@ namespace WindowEngine
             this.CenterWindow(this.Size);
         }
 
-        protected override void OnResize(ResizeEventArgs e)
-        {
-            GL.Viewport(0, 0, e.Width, e.Height);
-            base.OnResize(e);
-        }
-
         protected override void OnLoad()
         {
             base.OnLoad();
-
-            GL.ClearColor(new Color4(0.5f, 0.7f, 0.8f, 1f));
             
-            // load image
-            var image = Image.Load<Rgba32>("dirt.jpg");
-            int width = image.Width;
-            int height = image.Height;
-            int nrChannels = 4;
-
-            // flip image (bottom-origin)
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-    
-            Span<Rgba32> pixelSpan = new Span<Rgba32>(new Rgba32[width * height]);
-            image.CopyPixelDataTo(pixelSpan);
-            byte[] data = MemoryMarshal.AsBytes(pixelSpan).ToArray();
+            GL.ClearColor(new Color4(0.1f, 0.1f, 0.1f, 1f));        
             
             float[] vertices = {
                 // front
-                -0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,   
-                0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 0.0f,   
-                0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                -0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,
-                0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                -0.5f, 0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
+                -0.5f,-0.5f, 0.5f,  0,0,1,   
+                0.5f,-0.5f, 0.5f,  0,0,1,    
+                0.5f, 0.5f, 0.5f,  0,0,1, 
+                -0.5f,-0.5f, 0.5f,  0,0,1, 
+                0.5f, 0.5f, 0.5f,  0,0,1, 
+                -0.5f, 0.5f, 0.5f,  0,0,1, 
 
                 // right
-                0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
-                0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
-                0.5f, 0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
+                0.5f,-0.5f, 0.5f,  1,0,0,
+                0.5f,-0.5f,-0.5f,  1,0,0,
+                0.5f, 0.5f,-0.5f,  1,0,0,
+                0.5f,-0.5f, 0.5f,  1,0,0,
+                0.5f, 0.5f,-0.5f,  1,0,0,
+                0.5f, 0.5f, 0.5f,  1,0,0,
 
                 // back
-                0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                -0.5f,-0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
-                0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 1.0f,
-                0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 1.0f,
+                0.5f,-0.5f,-0.5f,  0,0,-1,
+                -0.5f,-0.5f,-0.5f,  0,0,-1,
+                -0.5f, 0.5f,-0.5f,  0,0,-1,
+                0.5f,-0.5f,-0.5f,  0,0,-1,
+                -0.5f, 0.5f,-0.5f,  0,0,-1,
+                0.5f, 0.5f,-0.5f,  0,0,-1,
 
                 // left
-                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                -0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                -0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 1.0f,
+                -0.5f,-0.5f,-0.5f,  -1,0,0,
+                -0.5f,-0.5f, 0.5f,  -1,0,0,
+                -0.5f, 0.5f, 0.5f,  -1,0,0,
+                -0.5f,-0.5f,-0.5f,  -1,0,0,
+                -0.5f, 0.5f, 0.5f,  -1,0,0,
+                -0.5f, 0.5f,-0.5f,  -1,0,0,
 
                 // bottom
-                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                -0.5f,-0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                -0.5f,-0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
+                -0.5f,-0.5f,-0.5f,  0,-1,0,
+                0.5f,-0.5f,-0.5f,  0,-1,0,
+                0.5f,-0.5f, 0.5f,  0,-1,0,
+                -0.5f,-0.5f,-0.5f,  0,-1,0,
+                0.5f,-0.5f, 0.5f,  0,-1,0,
+                -0.5f,-0.5f, 0.5f,  0,-1,0,
 
                 // top
-                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                0.5f, 0.5f, 0.5f,  1,1,1,  0.0f, 1.0f,
-                0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  1,1,1,  1.0f, 1.0f,
-                0.5f, 0.5f,-0.5f,  1,1,1,  0.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  1,1,1,  1.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  0,1,0,
+                0.5f, 0.5f, 0.5f,  0,1,0,
+                0.5f, 0.5f,-0.5f,  0,1,0,
+                -0.5f, 0.5f, 0.5f,  0,1,0,
+                0.5f, 0.5f,-0.5f,  0,1,0,
+                -0.5f, 0.5f,-0.5f,  0,1,0,
             };
             
             // Generate VBO
-            vertexBufferHandle = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, vertexBufferHandle);
+            _vertexBufferHandle = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferHandle);
             GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
             
             // Generate VAO
-            vertexArrayHandle = GL.GenVertexArray();
-            GL.BindVertexArray(vertexArrayHandle);
+            _vertexArrayHandle = GL.GenVertexArray();
+            GL.BindVertexArray(_vertexArrayHandle);
            
             // position
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
             GL.EnableVertexAttribArray(0);
 
-            // color
-            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 3 * sizeof(float));
+            // normal
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
             GL.EnableVertexAttribArray(1);
-            
-            GL.VertexAttribPointer(2, 2, VertexAttribPointerType.Float, false, 8 * sizeof(float), 6 * sizeof(float));
-            GL.EnableVertexAttribArray(2);
             
             GL.BindVertexArray(0);
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-            // textures
-            uint texture =  (uint)GL.GenTexture();
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-            
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height,  0, PixelFormat.Rgba, PixelType.UnsignedByte, data);
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             
             // Vertex shader with model, view, projection matrices
-            string vertexShaderCode = @"
-                #version 330 core
-                layout(location = 0) in vec3 aPosition;
-                layout(location = 1) in vec3 aColor;
-                layout(location = 2) in vec2 aTexCoord;
-
-                uniform mat4 uModel;
-                uniform mat4 uView;
-                uniform mat4 uProj;
-
-                out vec3 vColor;
-                out vec2 vTexCoord;
-
-                void main()
-                {
-                    vColor = aColor;
-                    vTexCoord = aTexCoord;
-                    gl_Position = uProj * uView * uModel * vec4(aPosition, 1.0);
-                }
-            ";
-
-            string fragmentShaderCode = @"
-                #version 330 core
-                in vec3 vColor;
-                in vec2 vTexCoord;
-
-                uniform sampler2D uTexture;
-
-                out vec4 FragColor;
-
-                void main()
-                {
-                    FragColor = texture(uTexture, vTexCoord) * vec4(vColor, 1.0);
-                }
-            ";
+            string vertexShaderCode = File.ReadAllText("Assets/Shaders/phong.vert");
+            string fragmentShaderCode = File.ReadAllText("Assets/Shaders/phong.frag");
 
             int vertexShaderHandle = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShaderHandle, vertexShaderCode);
@@ -192,34 +121,101 @@ namespace WindowEngine
             GL.CompileShader(fragmentShaderHandle);
             CheckShaderCompile(fragmentShaderHandle, "Fragment Shader");
 
-            shaderProgramHandle = GL.CreateProgram();
-            GL.AttachShader(shaderProgramHandle, vertexShaderHandle);
-            GL.AttachShader(shaderProgramHandle, fragmentShaderHandle);
-            GL.LinkProgram(shaderProgramHandle);
+            _shaderProgramHandle = GL.CreateProgram();
+            GL.AttachShader(_shaderProgramHandle, vertexShaderHandle);
+            GL.AttachShader(_shaderProgramHandle, fragmentShaderHandle);
+            GL.LinkProgram(_shaderProgramHandle);
 
-            GL.DetachShader(shaderProgramHandle, vertexShaderHandle);
-            GL.DetachShader(shaderProgramHandle, fragmentShaderHandle);
+            GL.DetachShader(_shaderProgramHandle, vertexShaderHandle);
+            GL.DetachShader(_shaderProgramHandle, fragmentShaderHandle);
             GL.DeleteShader(vertexShaderHandle);
             GL.DeleteShader(fragmentShaderHandle);
 
             // Get uniform locations
-            modelLoc = GL.GetUniformLocation(shaderProgramHandle, "uModel");
-            viewLoc = GL.GetUniformLocation(shaderProgramHandle, "uView");
-            projLoc = GL.GetUniformLocation(shaderProgramHandle, "uProj");
+            _modelLoc = GL.GetUniformLocation(_shaderProgramHandle, "model");
+            _viewLoc = GL.GetUniformLocation(_shaderProgramHandle, "view");
+            _projLoc = GL.GetUniformLocation(_shaderProgramHandle, "projection");
+            
+            _lightPosLoc = GL.GetUniformLocation(_shaderProgramHandle, "lightPos");
+            _viewPosLoc = GL.GetUniformLocation(_shaderProgramHandle, "viewPos");
+            _lightColorLoc = GL.GetUniformLocation(_shaderProgramHandle, "lightColor");
+            _objectColorLoc = GL.GetUniformLocation(_shaderProgramHandle, "objectColor");
             
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Back);
+
+            _camera = new Camera(Vector3.UnitZ * 3, Size.X / (float)Size.Y);
+                
+            CursorState = CursorState.Grabbed; 
         }
 
-        protected override void OnUpdateFrame(FrameEventArgs args)
+        protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            base.OnUpdateFrame(args);
-            angle += (float)args.Time;
+            base.OnUpdateFrame(e);
             
+            _angle += (float)e.Time;
             
-            levitationPhase += (float)args.Time * 2f;
+            const float sensitivity = 0.2f;
+            
+            if (!IsFocused) // check to see if the window is focused
+            {
+                return;
+            }
+
+            KeyboardState input = KeyboardState;
+            
+            if (input.IsKeyDown(Keys.Escape))
+            {
+                Close();
+            }
+            
+            if (input.IsKeyDown(Keys.W))
+            {
+                _camera.Position += _camera.Front * _cameraSpeed * (float)e.Time; // Forward
+            }
+
+            if (input.IsKeyDown(Keys.S))
+            {
+                _camera.Position -= _camera.Front * _cameraSpeed * (float)e.Time; // Backwards
+            }
+            if (input.IsKeyDown(Keys.A))
+            {
+                _camera.Position -= _camera.Right * _cameraSpeed * (float)e.Time; // Left
+            }
+            if (input.IsKeyDown(Keys.D))
+            {
+                _camera.Position += _camera.Right * _cameraSpeed * (float)e.Time; // Right
+            }
+            if (input.IsKeyDown(Keys.Space))
+            {
+                _camera.Position += _camera.Up * _cameraSpeed * (float)e.Time; // Up
+            }
+            if (input.IsKeyDown(Keys.LeftShift))
+            {
+                _camera.Position -= _camera.Up * _cameraSpeed * (float)e.Time; // Down
+            }
+            
+            // Get the mouse state
+            var mouse = MouseState;
+
+            if (_firstMove) // This bool variable is initially set to true.
+            {
+                _lastPos = new Vector2(mouse.X, mouse.Y);
+                _firstMove = false;
+            }
+            else
+            {
+                // Calculate the offset of the mouse position
+                var deltaX = mouse.X - _lastPos.X;
+                var deltaY = mouse.Y - _lastPos.Y;
+                _lastPos = new Vector2(mouse.X, mouse.Y);
+
+                // Apply the camera pitch and yaw (we clamp the pitch in the camera class)
+                _camera.Yaw += deltaX * sensitivity;
+                _camera.Pitch -= deltaY * sensitivity; // Reversed since y-coordinates range from bottom to top
+            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -227,10 +223,10 @@ namespace WindowEngine
             base.OnRenderFrame(args);
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.UseProgram(shaderProgramHandle);
+            GL.UseProgram(_shaderProgramHandle);
             
             // camera view
-            Matrix4 view = Matrix4.LookAt(new Vector3(0, 1.2f, 2f), Vector3.Zero, Vector3.UnitY);
+            Matrix4 view = _camera.GetViewMatrix();
            
             // fov
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
@@ -238,15 +234,26 @@ namespace WindowEngine
                 (float)Size.X / Size.Y,
                 0.1f, 100f);
 
-            // rotation + minecraft levitation
-            Matrix4 model = Matrix4.CreateTranslation(0f, 0.30f * MathF.Sin(levitationPhase), 0f) * Matrix4.CreateRotationY(angle * 0.7f);
+            // rotation
+            Matrix4 model = Matrix4.CreateRotationY(_angle * 0.7f);
+
+            Vector3 camPos = _camera.Position;
+            Vector3 lightPos = new Vector3(1.2f, 1.0f, 2.0f);
+
+            GL.UniformMatrix4(_viewLoc, false, ref view);
+            GL.UniformMatrix4(_projLoc, false, ref projection);
+            GL.UniformMatrix4(_modelLoc, false, ref model);
+
+            GL.Uniform3(_lightPosLoc, ref lightPos);
+            GL.Uniform3(_viewPosLoc, ref camPos);
             
-            GL.UniformMatrix4(viewLoc, false, ref view);
-            GL.UniformMatrix4(projLoc, false, ref projection);
-            GL.UniformMatrix4(modelLoc, false, ref model);
+            Vector3 lightColor = Vector3.One;
+            Vector3 objectColor = new Vector3(0.6f, 0.7f, 0.1f);
+            GL.Uniform3(_lightColorLoc, ref lightColor);
+            GL.Uniform3(_objectColorLoc, ref objectColor);
             
-            GL.BindVertexArray(vertexArrayHandle);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, vertexCount);
+            GL.BindVertexArray(_vertexArrayHandle);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 36);
             GL.BindVertexArray(0);
             
             SwapBuffers();        
@@ -255,17 +262,17 @@ namespace WindowEngine
         protected override void OnUnload()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.DeleteBuffer(vertexBufferHandle);
+            GL.DeleteBuffer(_vertexBufferHandle);
 
             GL.BindVertexArray(0);
-            GL.DeleteVertexArray(vertexArrayHandle);
+            GL.DeleteVertexArray(_vertexArrayHandle);
 
             GL.UseProgram(0);
-            GL.DeleteProgram(shaderProgramHandle);
+            GL.DeleteProgram(_shaderProgramHandle);
 
             base.OnUnload();
         }
-
+        
         private void CheckShaderCompile(int shaderHandle, string shaderName)
         {
             GL.GetShader(shaderHandle, ShaderParameter.CompileStatus, out int success);
@@ -274,6 +281,13 @@ namespace WindowEngine
                 string infoLog = GL.GetShaderInfoLog(shaderHandle);
                 Console.WriteLine($"Error compiling {shaderName}: {infoLog}");
             }
+        }
+        
+        protected override void OnResize(ResizeEventArgs e)
+        {
+            base.OnResize(e);
+
+            GL.Viewport(0, 0, Size.X, Size.Y);
         }
     }
 }

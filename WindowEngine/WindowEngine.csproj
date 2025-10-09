@@ -10,10 +10,10 @@
     <ItemGroup>
       <PackageReference Include="OpenTK" Version="4.9.4" />
       <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
-        <None Include="Assets/Textures/dirt.jpg">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>dirt.jpg</TargetPath>
-        </None>
     </ItemGroup>
 
+    <ItemGroup>
+        <None Include="Assets/Shaders/**" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="Assets/Textures/**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
 </Project>
