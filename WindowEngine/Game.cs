@@ -216,6 +216,13 @@ namespace WindowEngine
                 _camera.Pitch -= deltaY * sensitivity; // Reversed since y-coordinates range from bottom to top
             }
         }
+        
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            
+            _camera.Fov -= e.OffsetY;
+        }
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
@@ -229,7 +236,7 @@ namespace WindowEngine
            
             // fov
             Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(
-                MathHelper.DegreesToRadians(80f),
+                MathHelper.DegreesToRadians(_camera.Fov),
                 (float)Size.X / Size.Y,
                 0.1f, 100f);
 
