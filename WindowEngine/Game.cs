@@ -8,10 +8,6 @@ namespace WindowEngine
 {
     public class Game : GameWindow
     {
-        private int _vertexBufferObject;
-
-        private int _vaoModel;
-
         private int _vaoLamp;
 
         private Shader _lampShader;
@@ -24,18 +20,18 @@ namespace WindowEngine
         private Vector2 _lastPos;
         
         private Mesh _ground;
-        private Mesh _box1;
 
         private Mesh _tree;
         private Mesh _tree2;
         
         private Mesh _house;
         private Mesh _fence;
+        private Mesh _lamp;
         
-        private bool isLightOn = true;
+        private bool _isLightOn = true;
 
-        private Vector3 lightZoneMin = new Vector3(-5f, -1f, -12f);
-        private Vector3 lightZoneMax = new Vector3(1f, 3f, -6f);
+        private readonly Vector3 _lightZoneMin = new Vector3(-5f, -1f, -12f);
+        private readonly Vector3 _lightZoneMax = new Vector3(1f, 3f, -6f);
         
         List<WorldObject> _worldObjects;
         
@@ -62,11 +58,12 @@ namespace WindowEngine
             
             _camera = new Camera(Vector3.UnitY * 1.8f, Size.X / (float)Size.Y);
             
-            _tree = new Mesh("Assets/Models/tree01.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree01.png"), _camera);
-            _ground = new Mesh("Assets/Models/terrain.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/dirt.png"), _camera );
-            _tree2 = new Mesh("Assets/Models/tree12.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree12.png"), _camera);
-            _house = new Mesh("Assets/Models/house.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/house.png"), _camera);
-            _fence = new Mesh("Assets/Models/fence.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/metal.png"), _camera);
+            _tree = new Mesh("tree", "Assets/Models/tree01.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree01.png"), _camera);
+            _ground = new Mesh("ground", "Assets/Models/terrain.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/dirt.png"), _camera );
+            _tree2 = new Mesh("tree2", "Assets/Models/tree12.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree12.png"), _camera);
+            _house = new Mesh("house", "Assets/Models/house.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/house.png"), _camera);
+            _fence = new Mesh("fence", "Assets/Models/fence.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/metal.png"), _camera);
+            _lamp = new Mesh("lamp", "Assets/Models/lamp.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/lamp.png"), _camera);
             
             CursorState = CursorState.Grabbed;
 
@@ -75,6 +72,7 @@ namespace WindowEngine
             _worldObjects.Add(new WorldObject(_house, new Vector3(0, -0.9f, -10), new Vector3(0.01f), 0));             
             _worldObjects.Add(new WorldObject(_tree, new Vector3(7, 0, 7), new Vector3(0.01f), 0));              
             _worldObjects.Add(new WorldObject(_tree2, new Vector3(-10, 0, -6), new Vector3(0.01f), 0));      
+            _worldObjects.Add(new WorldObject(_lamp, new Vector3(-2f, 3f, -8f), new Vector3(0.15f), 0));      
             
             float gap = -12f;
             for (int i = 0; i < 8; i++)
@@ -84,33 +82,24 @@ namespace WindowEngine
             }
             
             gap = -14.5f;
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
                 _worldObjects.Add(new WorldObject(_fence, new Vector3(10.5f, 1, gap), new Vector3(1f), float.DegreesToRadians(90f)));
                 gap += 3f;
             }
             
             gap = -12f;
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
                 _worldObjects.Add(new WorldObject(_fence, new Vector3(gap, 1, 8.2f), new Vector3(1f), 0));
                 gap += 3f;
             }
             
             gap = -14.5f;
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
             {
                 _worldObjects.Add(new WorldObject(_fence, new Vector3(-13.5f, 1, gap), new Vector3(1f), float.DegreesToRadians(90f)));
                 gap += 3f;
-            }
-            
-            {
-                _vaoLamp = GL.GenVertexArray();
-                GL.BindVertexArray(_vaoLamp);
-
-                var positionLocation = _lampShader.GetAttribLocation("aPos");
-                GL.EnableVertexAttribArray(positionLocation);
-                GL.VertexAttribPointer(positionLocation, 3, VertexAttribPointerType.Float, false, 8 * sizeof(float), 0);
             }
         }
 
@@ -120,11 +109,21 @@ namespace WindowEngine
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
-            Vector3 diffuseColor = isLightOn ? new Vector3(0.5f) : Vector3.Zero;
+            Vector3 diffuseColor = _isLightOn ? new Vector3(0.5f) : Vector3.Zero;
             
             foreach(var obj in _worldObjects)
             {
-                obj.Draw(diffuseColor);
+                if (obj.Mesh.Name.Equals("lamp"))
+                {
+                    Vector3 lampColor = _isLightOn ? new Vector3(1.0f, 1.0f, 0.6f) : new Vector3(0.2f);
+                    _lampShader.SetVector3("lightColor", lampColor);
+                    
+                    obj.Draw(diffuseColor, _lampShader);
+                }
+                else
+                {
+                    obj.Draw(diffuseColor, _lightingShader);
+                }
             }
             
             SwapBuffers();
@@ -147,9 +146,9 @@ namespace WindowEngine
             }
             
             if (input.IsKeyPressed(Keys.E) &&
-                IsPlayerInZone(_camera.Position, lightZoneMin, lightZoneMax))
+                IsPlayerInZone(_camera.Position, _lightZoneMin, _lightZoneMax))
             {
-                isLightOn = !isLightOn;
+                _isLightOn = !_isLightOn;
             }
 
             float cameraSpeed = 2f;
