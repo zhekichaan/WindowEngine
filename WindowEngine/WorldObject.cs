@@ -7,18 +7,20 @@ public class WorldObject
     public Mesh Mesh;
     public Vector3 Position;
     public Vector3 Scale;
+    public float Rotation;
 
-    public WorldObject(Mesh mesh, Vector3 position, Vector3 scale)
+    public WorldObject(Mesh mesh, Vector3 position, Vector3 scale, float rotation)
     {
         Mesh = mesh;
         Position = position;
         Scale = scale;
+        Rotation = rotation;
     }
 
-    public void Draw()
+    public void Draw(Vector3 diffuseColor)
     {
-        Mesh.Transform = Matrix4.CreateScale(Scale) * Matrix4.CreateTranslation(Position);
-        Mesh.Draw();
+        Mesh.Transform = Matrix4.CreateScale(Scale)* Matrix4.CreateRotationY(Rotation) * Matrix4.CreateTranslation(Position);
+        Mesh.Draw(diffuseColor);
     }
 }
 

@@ -38,5 +38,9 @@
       <Content Include="Assets\Models\house.fbx">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="Assets\Models\fence.fbx" />
+      <Content Include="Assets\Models\fence.fbx">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 </Project>

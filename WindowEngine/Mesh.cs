@@ -6,7 +6,7 @@ namespace WindowEngine;
 public class Mesh
 {
     private readonly float[] _vertices;
-    public int vericesLength;
+    private int _vericesLength;
     private int _vao;
     private int _vbo;
     private Texture _diffuseMap;
@@ -24,7 +24,7 @@ public class Mesh
         _camera = camera;
         
         _vertices = LoadFbx(fbxPath);
-        vericesLength = _vertices.Length;
+        _vericesLength = _vertices.Length;
         _vbo = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
         GL.BufferData(BufferTarget.ArrayBuffer, this._vertices.Length * sizeof(float), this._vertices, BufferUsageHint.StaticDraw);
@@ -79,12 +79,24 @@ public class Mesh
         return vertices;
     }
     
-    public void Draw()
+    public void Draw(Vector3 diffuseColor)
     {
         GL.BindVertexArray(_vao);
         
         _diffuseMap.Use(TextureUnit.Texture0);
         
+        _shader.Use();
+
+        _shader.SetMatrix4("model", Transform);
+        _shader.SetMatrix4("view", _camera.GetViewMatrix());
+        _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
         
+        _shader.SetInt("material.diffuse", 0);
+
+        _shader.SetVector3("light.position", new Vector3(-2f, 2f, -8f));
+        _shader.SetVector3("light.ambient", new Vector3(0.2f));
+        _shader.SetVector3("light.diffuse", diffuseColor);
+                
+        GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, _vericesLength / 8);
     }
 }

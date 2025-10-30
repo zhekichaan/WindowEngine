@@ -8,65 +8,6 @@ namespace WindowEngine
 {
     public class Game : GameWindow
     {
-        private float[] _groundVertices = {
-            // positions            normals         texcoords
-            -50f, 0f, -50f,         0f, 1f, 0f,     0.0f, 50f,
-            50f, 0f, -50f,         0f, 1f, 0f,     50f, 50f,
-            50f, 0f,  50f,         0f, 1f, 0f,     50f, 0.0f,
-
-            50f, 0f,  50f,         0f, 1f, 0f,     50f, 0.0f,
-            -50f, 0f,  50f,         0f, 1f, 0f,     0.0f, 0.0f,
-            -50f, 0f, -50f,         0f, 1f, 0f,     0.0f, 50f
-        };
-        
-        private readonly float[] _vertices =
-        {
-            // Positions          Normals              Texture coords
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
-
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-             0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-        };
-
-        private readonly Vector3 _lightPos = new Vector3(-2f, 3f, -18f);
-
         private int _vertexBufferObject;
 
         private int _vaoModel;
@@ -89,11 +30,12 @@ namespace WindowEngine
         private Mesh _tree2;
         
         private Mesh _house;
+        private Mesh _fence;
         
         private bool isLightOn = true;
 
-        private Vector3 lightZoneMin = new Vector3(-5f, -1f, -22f);
-        private Vector3 lightZoneMax = new Vector3(1f, 3f, -15f);
+        private Vector3 lightZoneMin = new Vector3(-5f, -1f, -12f);
+        private Vector3 lightZoneMax = new Vector3(1f, 3f, -6f);
         
         List<WorldObject> _worldObjects;
         
@@ -124,14 +66,43 @@ namespace WindowEngine
             _ground = new Mesh("Assets/Models/terrain.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/dirt.png"), _camera );
             _tree2 = new Mesh("Assets/Models/tree12.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree12.png"), _camera);
             _house = new Mesh("Assets/Models/house.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/house.png"), _camera);
+            _fence = new Mesh("Assets/Models/fence.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/metal.png"), _camera);
             
             CursorState = CursorState.Grabbed;
 
             _worldObjects = new List<WorldObject>();
-            _worldObjects.Add(new WorldObject(_ground, new Vector3(0, 0, 0), new Vector3(50, 1, 50)));
-            _worldObjects.Add(new WorldObject(_house, new Vector3(0, -0.9f, -20), new Vector3(0.01f)));             
-            _worldObjects.Add(new WorldObject(_tree, new Vector3(5, 0, 5), new Vector3(0.01f)));              
-            _worldObjects.Add(new WorldObject(_tree2, new Vector3(-5, 0, -5), new Vector3(0.01f)));      
+            _worldObjects.Add(new WorldObject(_ground, new Vector3(0, 0, 0), new Vector3(1f), 0));             
+            _worldObjects.Add(new WorldObject(_house, new Vector3(0, -0.9f, -10), new Vector3(0.01f), 0));             
+            _worldObjects.Add(new WorldObject(_tree, new Vector3(7, 0, 7), new Vector3(0.01f), 0));              
+            _worldObjects.Add(new WorldObject(_tree2, new Vector3(-10, 0, -6), new Vector3(0.01f), 0));      
+            
+            float gap = -12f;
+            for (int i = 0; i < 8; i++)
+            {
+                _worldObjects.Add(new WorldObject(_fence, new Vector3(gap, 1, -16), new Vector3(1f), 0));
+                gap += 3f;
+            }
+            
+            gap = -14.5f;
+            for (int i = 0; i < 8; i++)
+            {
+                _worldObjects.Add(new WorldObject(_fence, new Vector3(10.5f, 1, gap), new Vector3(1f), float.DegreesToRadians(90f)));
+                gap += 3f;
+            }
+            
+            gap = -12f;
+            for (int i = 0; i < 8; i++)
+            {
+                _worldObjects.Add(new WorldObject(_fence, new Vector3(gap, 1, 8.2f), new Vector3(1f), 0));
+                gap += 3f;
+            }
+            
+            gap = -14.5f;
+            for (int i = 0; i < 8; i++)
+            {
+                _worldObjects.Add(new WorldObject(_fence, new Vector3(-13.5f, 1, gap), new Vector3(1f), float.DegreesToRadians(90f)));
+                gap += 3f;
+            }
             
             {
                 _vaoLamp = GL.GenVertexArray();
@@ -153,21 +124,7 @@ namespace WindowEngine
             
             foreach(var obj in _worldObjects)
             {
-                obj.Draw();
-                
-                _lightingShader.Use();
-
-                _lightingShader.SetMatrix4("model", obj.Mesh.Transform);
-                _lightingShader.SetMatrix4("view", _camera.GetViewMatrix());
-                _lightingShader.SetMatrix4("projection", _camera.GetProjectionMatrix());
-        
-                _lightingShader.SetInt("material.diffuse", 0);
-
-                _lightingShader.SetVector3("light.position", _lightPos);
-                _lightingShader.SetVector3("light.ambient", new Vector3(0.2f));
-                _lightingShader.SetVector3("light.diffuse", diffuseColor);
-                
-                GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, obj.Mesh.vericesLength / 8);
+                obj.Draw(diffuseColor);
             }
             
             SwapBuffers();
