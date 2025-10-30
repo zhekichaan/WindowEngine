@@ -8,8 +8,6 @@ namespace WindowEngine
 {
     public class Game : GameWindow
     {
-        private int _vaoLamp;
-
         private Shader _lampShader;
         private Shader _lightingShader;
 
@@ -30,8 +28,8 @@ namespace WindowEngine
         
         private bool _isLightOn = true;
 
-        private readonly Vector3 _lightZoneMin = new Vector3(-5f, -1f, -12f);
-        private readonly Vector3 _lightZoneMax = new Vector3(1f, 3f, -6f);
+        private readonly Vector3 _lightZoneMin = new Vector3(-5f, -1f, -11f);
+        private readonly Vector3 _lightZoneMax = new Vector3(1f, 3f, -5f);
         
         List<WorldObject> _worldObjects;
         
