@@ -17,10 +17,10 @@ public class WorldObject
         Rotation = rotation;
     }
 
-    public void Draw(Vector3 diffuseColor, Shader shader)
+    public void Draw(Vector3 diffuseColor)
     {
         Mesh.Transform = Matrix4.CreateScale(Scale)* Matrix4.CreateRotationY(Rotation) * Matrix4.CreateTranslation(Position);
-        Mesh.Draw(diffuseColor, shader);
+        Mesh.Draw(diffuseColor);
     }
 }
 

@@ -24,7 +24,7 @@ void main()
 {
     vec4 texColor = texture(material.diffuse, TexCoords);
 
-    // Discard nearly transparent pixels (for leaves)
+    // for leaf textures
     if (texColor.a < 0.1)
     discard;
 
@@ -43,6 +43,6 @@ void main()
 
     vec3 result = ambient + diffuse;
 
-    // Use the texture alpha
+    // add light color for lamp
     FragColor = vec4(result + lightColor, 1.0);
 }

@@ -26,6 +26,8 @@ namespace WindowEngine
         private Mesh _fence;
         private Mesh _lamp;
         
+        private Mesh _skeleton;
+        
         private bool _isLightOn = true;
 
         private readonly Vector3 _lightZoneMin = new Vector3(-5f, -1f, -11f);
@@ -56,12 +58,14 @@ namespace WindowEngine
             
             _camera = new Camera(Vector3.UnitY * 1.8f, Size.X / (float)Size.Y);
             
-            _tree = new Mesh("tree", "Assets/Models/tree01.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree01.png"), _camera);
-            _ground = new Mesh("ground", "Assets/Models/terrain.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/dirt.png"), _camera );
-            _tree2 = new Mesh("tree2", "Assets/Models/tree12.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree12.png"), _camera);
-            _house = new Mesh("house", "Assets/Models/house.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/house.png"), _camera);
-            _fence = new Mesh("fence", "Assets/Models/fence.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/metal.png"), _camera);
-            _lamp = new Mesh("lamp", "Assets/Models/lamp.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/lamp.png"), _camera);
+            _tree = new Mesh("Assets/Models/tree01.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree01.png"), _camera);
+            _ground = new Mesh("Assets/Models/terrain.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/dirt.png"), _camera );
+            _tree2 = new Mesh("Assets/Models/tree12.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/tree12.png"), _camera);
+            _house = new Mesh("Assets/Models/house.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/house.png"), _camera);
+            _fence = new Mesh("Assets/Models/fence.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/metal.png"), _camera);
+            _lamp = new Mesh("Assets/Models/lamp.fbx", _lampShader, Texture.LoadFromFile("Assets/Textures/lamp.png"), _camera);
+            
+            _skeleton = new Mesh("Assets/Models/skeleton.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/skeleton.png"), _camera);
             
             CursorState = CursorState.Grabbed;
 
@@ -71,6 +75,7 @@ namespace WindowEngine
             _worldObjects.Add(new WorldObject(_tree, new Vector3(7, 0, 7), new Vector3(0.01f), 0));              
             _worldObjects.Add(new WorldObject(_tree2, new Vector3(-10, 0, -6), new Vector3(0.01f), 0));      
             _worldObjects.Add(new WorldObject(_lamp, new Vector3(-2f, 3f, -8f), new Vector3(0.15f), 0));      
+            _worldObjects.Add(new WorldObject(_skeleton, new Vector3(3.3f, 1f, -14f), new Vector3(0.4f), float.DegreesToRadians(-90)));      
             
             float gap = -12f;
             for (int i = 0; i < 8; i++)
@@ -109,19 +114,12 @@ namespace WindowEngine
             
             Vector3 diffuseColor = _isLightOn ? new Vector3(0.5f) : Vector3.Zero;
             
+            Vector3 lampColor = _isLightOn ? new Vector3(1.0f, 1.0f, 0.6f) : new Vector3(0.2f);
+            _lampShader.SetVector3("lightColor", lampColor);
+            
             foreach(var obj in _worldObjects)
             {
-                if (obj.Mesh.Name.Equals("lamp"))
-                {
-                    Vector3 lampColor = _isLightOn ? new Vector3(1.0f, 1.0f, 0.6f) : new Vector3(0.2f);
-                    _lampShader.SetVector3("lightColor", lampColor);
-                    
-                    obj.Draw(diffuseColor, _lampShader);
-                }
-                else
-                {
-                    obj.Draw(diffuseColor, _lightingShader);
-                }
+                obj.Draw(diffuseColor);
             }
             
             SwapBuffers();

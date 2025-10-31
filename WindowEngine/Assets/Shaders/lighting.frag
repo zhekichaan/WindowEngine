@@ -21,8 +21,8 @@ in vec2 TexCoords;
 void main()
 {
     vec4 texColor = texture(material.diffuse, TexCoords);
-
-    // Discard nearly transparent pixels (for leaves)
+    
+    // for leaf tuxtures
     if (texColor.a < 0.1)
     discard;
 
@@ -40,7 +40,6 @@ void main()
     vec3 diffuse = light.diffuse * diff * attenuation * vec3(texture(material.diffuse, TexCoords));
 
     vec3 result = ambient + diffuse;
-
-    // Use the texture alpha
+    
     FragColor = vec4(result, texColor.a);
 }

@@ -46,5 +46,9 @@
       <Content Include="Assets\Models\lamp.fbx">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
+      <None Remove="Assets\Models\skeleton.fbx" />
+      <Content Include="Assets\Models\skeleton.fbx">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 </Project>

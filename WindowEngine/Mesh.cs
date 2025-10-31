@@ -14,19 +14,15 @@ public class Mesh
 
     private Camera _camera;
 
-    public String Name;
-    
     public Matrix4 Transform = Matrix4.Identity;
 
-    public Mesh(string name, string fbxPath, Shader shader, Texture diffuseMap, Camera camera)
+    public Mesh(string fbxPath, Shader shader, Texture diffuseMap, Camera camera)
     {
         _shader = shader;
         _diffuseMap = diffuseMap;
         
         _camera = camera;
 
-        Name = name;
-        
         _vertices = LoadFbx(fbxPath);
         _vericesLength = _vertices.Length;
         _vbo = GL.GenBuffer();
@@ -83,23 +79,23 @@ public class Mesh
         return vertices;
     }
     
-    public void Draw(Vector3 diffuseColor, Shader shader)
+    public void Draw(Vector3 diffuseColor)
     {
         GL.BindVertexArray(_vao);
         
         _diffuseMap.Use(TextureUnit.Texture0);
         
-        shader.Use();
+        _shader.Use();
 
-        shader.SetMatrix4("model", Transform);
-        shader.SetMatrix4("view", _camera.GetViewMatrix());
-        shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
+        _shader.SetMatrix4("model", Transform);
+        _shader.SetMatrix4("view", _camera.GetViewMatrix());
+        _shader.SetMatrix4("projection", _camera.GetProjectionMatrix());
         
-        shader.SetInt("material.diffuse", 0);
+        _shader.SetInt("material.diffuse", 0);
 
-        shader.SetVector3("light.position", new Vector3(-2f, 3f, -8f));
-        shader.SetVector3("light.ambient", new Vector3(0.2f));
-        shader.SetVector3("light.diffuse", diffuseColor);
+        _shader.SetVector3("light.position", new Vector3(-2f, 2.5f, -8f));
+        _shader.SetVector3("light.ambient", new Vector3(0.2f));
+        _shader.SetVector3("light.diffuse", diffuseColor);
                 
         GL.DrawArrays(OpenTK.Graphics.OpenGL4.PrimitiveType.Triangles, 0, _vericesLength / 8);
     }
