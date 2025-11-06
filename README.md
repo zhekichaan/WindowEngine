@@ -7,7 +7,8 @@
 My state machine is an enum that has four states: Idle, Walk, Jump and Punch. By default the state is Idle.  
 It is very usefull because you can always check the state of the character to apply physics for example to apply gravity and vertical position when state is Jump
 
-##
-The main challenges for me were to allow pressing Jump only once and freeze animation while in air.  
-Additionaly calculating physics was also a challenge.  
-Lastly there was a lot of different small issues I had throughout this assignment where the fix was pretty simple yet it took some time to figure out
+## Challenges
+The main challenges for me were to allow pressing Jump only once and freeze animation while in air.   
+I solved it by creating a state machine and setting it to Jump until the charater isGrounded. Then just setting frame to last frame of the jump to make it look freezed.  
+Additionaly calculating physics was also a challenge. 
+Lastly there was a lot of different small issues I had throughout this assignment where the fix was pretty simple yet it took some time to figure out.
