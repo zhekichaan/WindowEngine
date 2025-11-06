@@ -9,46 +9,36 @@
 
     <ItemGroup>
       <PackageReference Include="AssimpNet" Version="5.0.0-beta1" />
-      <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
       <PackageReference Include="OpenTK" Version="4.9.4" />
-      <PackageReference Include="StbImageSharp" Version="2.30.15" />
-      <PackageReference Include="Veldrid.ImGui" Version="5.89.2-ga121087cad" />
+      <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="Assets/Shaders/**" CopyToOutputDirectory="PreserveNewest" />
         <None Include="Assets/Textures/**" CopyToOutputDirectory="PreserveNewest" />
+        <None Update="Assets\Sprites\sprite.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Update="Assets\Sprites\bg.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Assets\Sprites\pole.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
       <None Remove="Assets\Models\tree01.fbx" />
-      <Content Include="Assets\Models\tree01.fbx">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="Assets\Models\terrain.fbx">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Assets\Models\tree02_winter.fbx" />
       <None Remove="Assets\Models\tree02.fbx" />
       <None Remove="Assets\Models\tree12.fbx" />
-      <Content Include="Assets\Models\tree12.fbx">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Assets\Models\house.fbx" />
-      <Content Include="Assets\Models\house.fbx">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
       <None Remove="Assets\Models\fence.fbx" />
-      <Content Include="Assets\Models\fence.fbx">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Assets\Models\lamp.fbx" />
-      <Content Include="Assets\Models\lamp.fbx">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Assets\Models\skeleton.fbx" />
-      <Content Include="Assets\Models\skeleton.fbx">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\Sprites\" />
     </ItemGroup>
 </Project>
