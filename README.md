@@ -12,3 +12,8 @@ The main challenges for me were to allow pressing Jump only once and freeze anim
 I solved it by creating a state machine and setting it to Jump until the charater isGrounded. Then just setting frame to last frame of the jump to make it look freezed.  
 Additionaly calculating physics was also a challenge. 
 Lastly there was a lot of different small issues I had throughout this assignment where the fix was pretty simple yet it took some time to figure out.
+
+## Credits
+
+Sprite: https://spritedatabase.net/file/10828
+Background: https://www.artstation.com/artwork/DA88D0
