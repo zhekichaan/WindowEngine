@@ -1,40 +1,14 @@
-# Project title and description
+## New Features
+- Jumping by pressing UP arrow
+- Punching by pressing Space button
+- Added backgroun to the scene and a pole on a foreground to add depth to the game
 
-Title: Spooky House  
-Description: A small scene/map with a house, a fence and a couple of trees. You are a ghost who can walk around and even travel through walls (because you are a ghost :) ).
+## State machine
+My state machine is an enum that has four states: Idle, Walk, Jump and Punch. By default the state is Idle.  
+It is very usefull because you can always check the state of the character to apply physics for example to apply gravity and vertical position when state is Jump
 
-## Gameplay instructions
-
-To toggle a light inside a house you need to enter it first. If you are in the same room as the light, you can press "E".  
-Also, you are free to explore the world and maybe you will find something spooky...
-
-## Feature list (what’s implemented)
-
-**Lighting**: Phong lighting  
-**Textures**: Used textures for all game objects (exept lamp)  
-**Camera Controls**: WASD to move, Mouse to look around, Esc to quit, Zoom In/Out  
-**Interaction**: Press "E" to toggle light inside a house   
-
-## How to build/run the project
-
-Copy the repository and run the project. You might need to restore NuGet packages.
-
-## Credits
-**Tiny Texture Pack 2** by Screaming Brain Studios  
-Licensed under **CC0 / Public Domain** (free to use, modify, and redistribute)  
-Link: https://screamingbrainstudios.itch.io/tiny-texture-pack-2
-
-**Retro PSX Style Tree Pack** by Elegant Crow  
-Models licensed under **CC0 (public domain)**  
-Textures from **CC0Textures.com**  
-Used under the original license (credit appreciated, not required)  
-Link: https://elegantcrow.itch.io/psx-retro-style-tree-pack
-
-**Retro House Pack** by Elegant Crow  
-Models licensed under **CC0 (public domain)**  
-Textures from AmbientCG.com, Pixabay, Pexels, Unsplash  
-Link: https://elegantcrow.itch.io/retro-house-pack  
-
-**PSX Low Poly Skeleton** by Puck  
-Licensed under **CC0 (public domain)**  
-Link: https://puszke.itch.io/psx-low-poly-skeleton  
+## Challenges
+The main challenges for me were to allow pressing Jump only once and freeze animation while in air.   
+I solved it by creating a state machine and setting it to Jump until the charater isGrounded. Then just setting frame to last frame of the jump to make it look freezed.  
+Additionaly calculating physics was also a challenge. 
+Lastly there was a lot of different small issues I had throughout this assignment where the fix was pretty simple yet it took some time to figure out.
