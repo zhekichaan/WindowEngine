@@ -103,15 +103,13 @@ public class Character
             _animFrame = 0;
         }
 
-        // If we just started a jump, and we're on ground, give upward velocity
+        // If player just jumped, and on the ground, give vertical velocity
         if (s == State.Jump && _isOnGround)
         {
             _velY = JumpVelocity;
-            // nudge above ground so landing doesn't immediately re-fire in same frame
+            // add some vertical position so onGround check doesn't refire
             Position = new Vector2(Position.X, Position.Y + 0.001f);
         }
-
-        // If punch started, optionally you could freeze movement; here we keep movement minimal
     }
 
     private void UpdateStateBehavior(float delta, bool leftHeld, bool rightHeld)
