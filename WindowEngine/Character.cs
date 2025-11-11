@@ -29,6 +29,16 @@ public class Character
     private const float TotalW = FrameW + Gap;
     private const float SheetW = Columns * TotalW - Gap;
     private const float SheetH = 340f;
+    
+    // Important: this must match how you draw the sprite (your vertices use w=120,h=85 as half-extents).
+    public readonly Vector2 HalfSize = new Vector2(35f, 42.5f);
+
+    // Expose AABB (centered on Position)
+    public AABB GetAABB()
+    {
+        // Position is the sprite center (because vertex positions are -w..w and you translate by Position).
+        return new AABB(Position, HalfSize);
+    }
 
     // State machine
     private State _state = State.Idle;
@@ -194,5 +204,17 @@ public class Character
         int sz = GL.GetUniformLocation(_shader, "uSize");
         GL.Uniform2(off, x, y);
         GL.Uniform2(sz, w, h);
+    }
+    
+    public void ResolveCollision(Vector2 mtv)
+    {
+        // Only apply horizontal corrections (ignore Y)
+        if (MathF.Abs(mtv.X) > MathF.Abs(mtv.Y))
+        {
+            Position = new Vector2(Position.X + mtv.X, Position.Y);
+
+            if (_state == State.Walk)
+                SetState(State.Idle, true);
+        }
     }
 }

@@ -50,13 +50,13 @@ namespace WindowEngine
             _bgTexture = LoadTexture("Assets/Sprites/bg.png");
             _poleTexture = LoadTexture("Assets/Sprites/pole.png");
 
-            float w = 120f, h = 85f;
+            float w = 60f, h = 42.5f;
             float[] vertices =
             {
-                -w, -h, 0f, 0f,
-                w, -h, 1f, 0f,
-                w,  h, 1f, 1f,
-                -w,  h, 0f, 1f
+                -w*2, -h*2, 0f, 0f,
+                w*2, -h*2, 1f, 0f,
+                w*2,  h*2, 1f, 1f,
+                -w*2,  h*2, 0f, 1f
             };
 
             {
@@ -153,6 +153,14 @@ namespace WindowEngine
             
             // Give character input
             _character.HandleInput((float)e.Time, left, right, upPressedEdge, punchPressedEdge);
+            
+            // Collision check
+            var charAabb = _character.GetAABB();
+            var wallAabb = new AABB(new Vector2(750f, 300f), new Vector2(10f, 600f));
+            if (charAabb.Intersects(wallAabb, out Vector2 mtv))
+            {
+                _character.ResolveCollision(mtv);
+            }
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
