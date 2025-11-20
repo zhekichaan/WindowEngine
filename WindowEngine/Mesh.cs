@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 
 namespace WindowEngine;
+
 public class Mesh
 {
     private readonly float[] _vertices;
@@ -11,20 +12,26 @@ public class Mesh
     private int _vbo;
     private Texture _diffuseMap;
     private Shader _shader;
-
     private Camera _camera;
 
     public Matrix4 Transform = Matrix4.Identity;
+    
+    // Original bounds of the mesh (before any transformation)
+    public Vector3 OriginalMin { get; private set; }
+    public Vector3 OriginalMax { get; private set; }
 
     public Mesh(string fbxPath, Shader shader, Texture diffuseMap, Camera camera)
     {
         _shader = shader;
         _diffuseMap = diffuseMap;
-        
         _camera = camera;
 
         _vertices = LoadFbx(fbxPath);
         _vericesLength = _vertices.Length;
+        
+        // Calculate bounds from vertices
+        CalculateBounds();
+        
         _vbo = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
         GL.BufferData(BufferTarget.ArrayBuffer, this._vertices.Length * sizeof(float), this._vertices, BufferUsageHint.StaticDraw);
@@ -55,7 +62,7 @@ public class Mesh
         if (scene.MeshCount == 0)
             throw new Exception("FBX contains no meshes!");
 
-        var mesh = scene.Meshes[0]; // Take first mesh
+        var mesh = scene.Meshes[0];
         float[] vertices = new float[mesh.VertexCount * 8];
 
         for (int i = 0; i < mesh.VertexCount; i++)
@@ -77,6 +84,25 @@ public class Mesh
         }
 
         return vertices;
+    }
+    
+    private void CalculateBounds()
+    {
+        if (_vertices.Length == 0) return;
+
+        Vector3 min = new Vector3(float.MaxValue);
+        Vector3 max = new Vector3(float.MinValue);
+
+        // Iterate through vertices (stride of 8 floats per vertex)
+        for (int i = 0; i < _vertices.Length; i += 8)
+        {
+            Vector3 pos = new Vector3(_vertices[i], _vertices[i + 1], _vertices[i + 2]);
+            min = Vector3.ComponentMin(min, pos);
+            max = Vector3.ComponentMax(max, pos);
+        }
+
+        OriginalMin = min;
+        OriginalMax = max;
     }
     
     public void Draw(Vector3 diffuseColor)

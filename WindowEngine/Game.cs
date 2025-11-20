@@ -27,13 +27,18 @@ namespace WindowEngine
         private Mesh _lamp;
         
         private Mesh _skeleton;
+        private Mesh _door;
         
         private bool _isLightOn = true;
+        private Door _houseDoor;
 
         private readonly Vector3 _lightZoneMin = new Vector3(-5f, -1f, -11f);
         private readonly Vector3 _lightZoneMax = new Vector3(1f, 3f, -5f);
         
         List<WorldObject> _worldObjects;
+        
+        // Player collision settings
+        private readonly Vector3 _playerSize = new Vector3(0.6f, 1.8f, 0.6f); // Width, Height, Depth
         
         public Game()
             : base(GameWindowSettings.Default, NativeWindowSettings.Default)
@@ -66,16 +71,100 @@ namespace WindowEngine
             _lamp = new Mesh("Assets/Models/lamp.fbx", _lampShader, Texture.LoadFromFile("Assets/Textures/lamp.png"), _camera);
             
             _skeleton = new Mesh("Assets/Models/skeleton.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/skeleton.png"), _camera);
+            _door = new Mesh("Assets/Models/door.fbx", _lightingShader, Texture.LoadFromFile("Assets/Textures/door.png"), _camera);
+            Console.WriteLine("Door mesh loaded successfully");
             
             CursorState = CursorState.Grabbed;
 
+            
             _worldObjects = new List<WorldObject>();
+            
+            _houseDoor = new Door(
+                _door, 
+                new Vector3(0f, 1.1f, -5f),      // Adjust Y height
+                new Vector3(1f),               // Adjust scale
+                MathHelper.DegreesToRadians(0f), // Adjust initial rotation (try 0, 90, 180, 270)
+                new Vector3(1f, 2f, 0.1f)        // Collision size
+            );
+            _worldObjects.Add(_houseDoor);
+            
             _worldObjects.Add(new WorldObject(_ground, new Vector3(0, 0, 0), new Vector3(1f), 0));             
-            _worldObjects.Add(new WorldObject(_house, new Vector3(0, -0.9f, -10), new Vector3(0.01f), 0));             
-            _worldObjects.Add(new WorldObject(_tree, new Vector3(7, 0, 7), new Vector3(0.01f), 0));              
-            _worldObjects.Add(new WorldObject(_tree2, new Vector3(-10, 0, -6), new Vector3(0.01f), 0));      
+            List<CollisionBoxData> houseCollisionBoxes = new List<CollisionBoxData>
+            {
+                // Front LEFT wall (from left corner to door)
+                new CollisionBoxData(
+                    new Vector3(3.4f, 3f, 0.3f),           // 2 units wide (half of front)
+                    new Vector3(-2.4f, 1.9f, 5f)           // Positioned left of door
+                ),
+    
+                // Front RIGHT wall (from door to right corner)
+                new CollisionBoxData(
+                    new Vector3(3.4f, 3f, 0.3f),           // 2 units wide (half of front)
+                    new Vector3(2.4f, 1.9f, 5f)            // Positioned right of door
+                ),
+    
+                // LEFT side wall
+                new CollisionBoxData(
+                    new Vector3(0.3f, 3f, 10f),          // 10 units deep
+                    new Vector3(-4f, 1.9f, 0f)           // At x = -4
+                ),
+    
+                // RIGHT side wall
+                new CollisionBoxData(
+                    new Vector3(0.3f, 3f, 10f),          // 10 units deep
+                    new Vector3(4f, 1.9f, 0f)            // At x = +4
+                ),
+    
+                // BACK wall
+                new CollisionBoxData(
+                    new Vector3(8f, 3f, 0.3f),           // Full 8 units wide
+                    new Vector3(0f, 1.9f, -5f)           // At z = -15 (offset -5 from center at -10)
+                ),
+                
+                // Inside walls
+                new CollisionBoxData(
+                    new Vector3(0.1f, 3f, 3f), // 3 wide, .1 deep
+                    new Vector3(1f, 1.9f, 1.4f) 
+                ),
+                
+                new CollisionBoxData(
+                    new Vector3(2.6f, 3f, 0.1f), // 2.6 wide, .1 deep
+                    new Vector3(2f, 1.9f, 0f) 
+                ),
+                
+                new CollisionBoxData(
+                    new Vector3(2.8f, 3f, 0.1f), // 2.8 wide, .1 deep
+                    new Vector3(-2f, 1.9f, 0f) 
+                ),
+                
+                new CollisionBoxData(
+                    new Vector3(2.3f, 3f, 0.1f), // 2.3 wide, .1 deep
+                    new Vector3(2.3f, 1.9f, -3f) 
+                ),
+                
+                new CollisionBoxData(
+                    new Vector3(0.1f, 3f, 1f), // 1 wide, .1 deep
+                    new Vector3(1f, 1.9f, -0.5f) 
+                ),
+                
+                new CollisionBoxData(
+                    new Vector3(0.1f, 3f, 1.5f), // 1.5 wide, .1 deep
+                    new Vector3(1f, 1.9f, -2.7f) 
+                ),
+                
+                new CollisionBoxData(
+                    new Vector3(0.1f, 3f, 0.5f), // 0.5 wide, .1 deep
+                    new Vector3(1f, 1.9f, -4.2f) 
+                ),
+            };
+
+            _worldObjects.Add(new WorldObject(_house, new Vector3(0, -0.9f, -10), new Vector3(0.01f), 0, houseCollisionBoxes));
+            _worldObjects.Add(new WorldObject(_tree, new Vector3(7, 0, 7), new Vector3(0.01f), 0, new Vector3(0.5f, 3f, 0.5f)));     
+            _worldObjects.Add(new WorldObject(_tree2, new Vector3(-10, 0, -6), new Vector3(0.01f), 0, new Vector3(0.5f, 3f, 0.5f)));      
             _worldObjects.Add(new WorldObject(_lamp, new Vector3(-2f, 3f, -8f), new Vector3(0.15f), 0));      
             _worldObjects.Add(new WorldObject(_skeleton, new Vector3(3.3f, 1f, -14f), new Vector3(0.4f), float.DegreesToRadians(-90)));      
+            
+            
             
             float gap = -12f;
             for (int i = 0; i < 8; i++)
@@ -160,25 +249,66 @@ namespace WindowEngine
                 cameraSpeed = 4f;
             }
 
+            Vector3 oldPosition = _camera.Position;
+            Vector3 newPosition = oldPosition;
+
+            // Movement with collision detection
             if (input.IsKeyDown(Keys.W))
             {
-                _camera.Position += forward * cameraSpeed * (float)e.Time; // Forward
+                newPosition += forward * cameraSpeed * (float)e.Time;
             }
             if (input.IsKeyDown(Keys.S))
             {
-                _camera.Position -= forward * cameraSpeed * (float)e.Time; // Backwards
+                newPosition -= forward * cameraSpeed * (float)e.Time;
             }
             if (input.IsKeyDown(Keys.A))
             {
-                _camera.Position -= _camera.Right * cameraSpeed * (float)e.Time; // Left
+                newPosition -= _camera.Right * cameraSpeed * (float)e.Time;
             }
             if (input.IsKeyDown(Keys.D))
             {
-                _camera.Position += _camera.Right * cameraSpeed * (float)e.Time; // Right
+                newPosition += _camera.Right * cameraSpeed * (float)e.Time;
             }
+            
+            if (input.IsKeyPressed(Keys.P))  // Press P to print position
+            {
+                Console.WriteLine($"Camera Position: {_camera.Position}");
+            }
+
+            // Check collision before applying movement
+            if (!CheckPlayerCollision(newPosition))
+            {
+                _camera.Position = newPosition;
+            }
+            else
+            {
+                // Try sliding along walls - check X and Z separately
+                Vector3 tryX = new Vector3(newPosition.X, oldPosition.Y, oldPosition.Z);
+                Vector3 tryZ = new Vector3(oldPosition.X, oldPosition.Y, newPosition.Z);
+                
+                if (!CheckPlayerCollision(tryX))
+                {
+                    _camera.Position = tryX;
+                }
+                else if (!CheckPlayerCollision(tryZ))
+                {
+                    _camera.Position = tryZ;
+                }
+                // If both collide, stay at old position
+            }
+
 
             var mouse = MouseState;
 
+            if (mouse.IsButtonPressed(MouseButton.Right))
+            {
+                Door? lookedAtDoor = GetLookedAtDoor(2f); // 2 units max distance
+                if (lookedAtDoor != null)
+                {
+                    lookedAtDoor.Toggle();
+                }
+            }
+            
             if (_firstMove)
             {
                 _lastPos = new Vector2(mouse.X, mouse.Y);
@@ -213,6 +343,54 @@ namespace WindowEngine
             return playerPos.X >= min.X && playerPos.X <= max.X &&
                    playerPos.Y >= min.Y && playerPos.Y <= max.Y &&
                    playerPos.Z >= min.Z && playerPos.Z <= max.Z;
+        }
+        
+        private bool CheckPlayerCollision(Vector3 position)
+        {
+            // Create player bounding box at the new position
+            BoundingBox playerBox = BoundingBox.FromCenterAndSize(position, _playerSize, Vector3.One);
+            
+            // Check against all world objects
+            foreach (var obj in _worldObjects)
+            {
+                if (obj.CheckCollision(playerBox))
+                {
+                    return true; // Collision detected
+                }
+            }
+            
+            return false; // No collision
+        }
+        
+        private Door? GetLookedAtDoor(float maxDistance)
+        {
+            // Get camera forward direction
+            float yaw = MathHelper.DegreesToRadians(_camera.Yaw);
+            float pitch = MathHelper.DegreesToRadians(_camera.Pitch);
+    
+            Vector3 forward = new Vector3(
+                MathF.Cos(yaw) * MathF.Cos(pitch),
+                MathF.Sin(pitch),
+                MathF.Sin(yaw) * MathF.Cos(pitch)
+            );
+            forward = Vector3.Normalize(forward);
+    
+            // Check if looking at door and within range
+            Vector3 toDoor = _houseDoor.Position - _camera.Position;
+            float distance = toDoor.Length;
+    
+            if (distance > maxDistance)
+                return null;
+    
+            // Check if we're roughly looking at the door
+            Vector3 toDoorNormalized = Vector3.Normalize(toDoor);
+            float dot = Vector3.Dot(forward, toDoorNormalized);
+    
+            // If dot > 0.8, we're looking roughly at the door (within ~36 degrees)
+            if (dot > 0.2f)
+                return _houseDoor;
+    
+            return null;
         }
     }
 }
