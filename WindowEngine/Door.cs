@@ -7,7 +7,7 @@ namespace WindowEngine
         public bool IsOpen { get; private set; }
         private float _closedRotation;
         private float _openRotation;
-        private Vector3 _pivotOffset = new Vector3(0.5f, 0f, 0f); // Adjust this - pivot at left edge
+        private Vector3 _pivotOffset = new Vector3(0.5f, 0f, 0f);
 
         public Door(Mesh mesh, Vector3 position, Vector3 scale, float rotation, Vector3? customCollisionSize = null)
             : base(mesh, position, scale, rotation, customCollisionSize)

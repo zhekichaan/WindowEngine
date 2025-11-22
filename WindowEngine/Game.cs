@@ -81,10 +81,10 @@ namespace WindowEngine
             
             _houseDoor = new Door(
                 _door, 
-                new Vector3(0f, 1.1f, -5f),      // Adjust Y height
-                new Vector3(1f),               // Adjust scale
-                MathHelper.DegreesToRadians(0f), // Adjust initial rotation (try 0, 90, 180, 270)
-                new Vector3(1f, 2f, 0.1f)        // Collision size
+                new Vector3(0f, 1.1f, -5f),
+                new Vector3(1f),
+                MathHelper.DegreesToRadians(0f),
+                new Vector3(1f, 2f, 0.1f)
             );
             _worldObjects.Add(_houseDoor);
             
@@ -163,8 +163,6 @@ namespace WindowEngine
             _worldObjects.Add(new WorldObject(_tree2, new Vector3(-10, 0, -6), new Vector3(0.01f), 0, new Vector3(0.5f, 3f, 0.5f)));      
             _worldObjects.Add(new WorldObject(_lamp, new Vector3(-2f, 3f, -8f), new Vector3(0.15f), 0));      
             _worldObjects.Add(new WorldObject(_skeleton, new Vector3(3.3f, 1f, -14f), new Vector3(0.4f), float.DegreesToRadians(-90)));      
-            
-            
             
             float gap = -12f;
             for (int i = 0; i < 8; i++)
@@ -269,11 +267,6 @@ namespace WindowEngine
             {
                 newPosition += _camera.Right * cameraSpeed * (float)e.Time;
             }
-            
-            if (input.IsKeyPressed(Keys.P))  // Press P to print position
-            {
-                Console.WriteLine($"Camera Position: {_camera.Position}");
-            }
 
             // Check collision before applying movement
             if (!CheckPlayerCollision(newPosition))
@@ -282,7 +275,6 @@ namespace WindowEngine
             }
             else
             {
-                // Try sliding along walls - check X and Z separately
                 Vector3 tryX = new Vector3(newPosition.X, oldPosition.Y, oldPosition.Z);
                 Vector3 tryZ = new Vector3(oldPosition.X, oldPosition.Y, newPosition.Z);
                 
@@ -386,7 +378,6 @@ namespace WindowEngine
             Vector3 toDoorNormalized = Vector3.Normalize(toDoor);
             float dot = Vector3.Dot(forward, toDoorNormalized);
     
-            // If dot > 0.8, we're looking roughly at the door (within ~36 degrees)
             if (dot > 0.2f)
                 return _houseDoor;
     
