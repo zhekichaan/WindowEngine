@@ -1,40 +1,15 @@
-# Project title and description
+# Assignment 9
 
-Title: Spooky House  
-Description: A small scene/map with a house, a fence and a couple of trees. You are a ghost who can walk around and even travel through walls (because you are a ghost :) ).
+## The collision detection method used
 
-## Gameplay instructions
+For this assignment, I used AABB collision detection for all World Objects in my scene.
 
-To toggle a light inside a house you need to enter it first. If you are in the same room as the light, you can press "E".  
-Also, you are free to explore the world and maybe you will find something spooky...
+## How your collision and movement integration works
 
-## Feature list (what’s implemented)
+Basically, each object has a bounding box (a house has several), which works as an invisible border around that object.   
+A player also has this box, and the point of collision is to check whether the player's box intersects any of the game objects.  
+When that intersection happens, any movement in the direction of a bounding box gets blocked, but you can still slide next to it.
 
-**Lighting**: Phong lighting  
-**Textures**: Used textures for all game objects (exept lamp)  
-**Camera Controls**: WASD to move, Mouse to look around, Esc to quit, Zoom In/Out  
-**Interaction**: Press "E" to toggle light inside a house   
+## Any challenges encountered and how you solved them
 
-## How to build/run the project
-
-Copy the repository and run the project. You might need to restore NuGet packages.
-
-## Credits
-**Tiny Texture Pack 2** by Screaming Brain Studios  
-Licensed under **CC0 / Public Domain** (free to use, modify, and redistribute)  
-Link: https://screamingbrainstudios.itch.io/tiny-texture-pack-2
-
-**Retro PSX Style Tree Pack** by Elegant Crow  
-Models licensed under **CC0 (public domain)**  
-Textures from **CC0Textures.com**  
-Used under the original license (credit appreciated, not required)  
-Link: https://elegantcrow.itch.io/psx-retro-style-tree-pack
-
-**Retro House Pack** by Elegant Crow  
-Models licensed under **CC0 (public domain)**  
-Textures from AmbientCG.com, Pixabay, Pexels, Unsplash  
-Link: https://elegantcrow.itch.io/retro-house-pack  
-
-**PSX Low Poly Skeleton** by Puck  
-Licensed under **CC0 (public domain)**  
-Link: https://puszke.itch.io/psx-low-poly-skeleton  
+A couple of challenges for me were to implement a door and to have all walls in the house to have collision. For the door, I found a free door model online, which I imported into a scene and added collision for it. Then, I decided to try something new and decided to add door-opening functionality by clicking the RMB while looking at the door. To solve this challenge, I added a GetLookedAtDoor function, which gets the camera's forward direction, checks for a distance, and then toggles the door, which opens 90 degrees inside the house. For house walls, instead of making one bounding box for one object, I added a possibility to add several bounding boxes for one object, and then I just manually measured each wall in the house and added the collision boxes for each wall.
